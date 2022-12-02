@@ -18,6 +18,7 @@ spec:
     spec:
       nodeSelector:
         role: benchmark
+        offMeshNodeType: cpu
       restartPolicy: Never
       volumes:
       - name: tempfs

@@ -19,6 +19,7 @@ spec:
         runAsUser: 10001
       nodeSelector:
         role: benchmark
+        offMeshNodeType: cpu
       containers:
       - name: metrics-merger
         image: quay.io/kinvolk/svcmesh-bench-results-merger

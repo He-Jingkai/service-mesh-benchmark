@@ -21,6 +21,7 @@ spec:
     spec:
       nodeSelector:
         role: workload
+        offMeshNodeType: cpu
       securityContext:
         runAsNonRoot: true
         runAsUser: 65534
@@ -66,6 +67,7 @@ spec:
     spec:
       nodeSelector:
         role: workload
+        offMeshNodeType: cpu
       securityContext:
         runAsNonRoot: true
         runAsUser: 65534
@@ -111,6 +113,7 @@ spec:
     spec:
       nodeSelector:
         role: workload
+        offMeshNodeType: cpu
       securityContext:
         runAsNonRoot: true
         runAsUser: 65534

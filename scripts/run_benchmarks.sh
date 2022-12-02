@@ -206,67 +206,106 @@ function delete_istio() {
 }
 # --
 
-function run_benchmarks() {
+function run_benchmarks_istio(){
+    echo " +++ istio benchmark"
+    install_emojivoto istio
+    run_bench istio $rps
+    delete_emojivoto
+}
+# --
+
+function run_benchmarks_bare_metal(){
+    echo " +++ bare metal benchmark"
+    install_emojivoto bare-metal
+    run_bench bare-metal $rps
+    delete_emojivoto
+}
+# --
+
+function run_benchmarks_istio_repeat(){
     for rps in 500 1000 1500 2000 2500 3000 3500 4000 4500 5000 5500; do
         for repeat in 1 2 3 4 5; do
-
-            echo "########## Run #$repeat w/ $rps RPS"
-
-            echo " +++ bare metal benchmark"
-            install_emojivoto bare-metal
-            run_bench bare-metal $rps
-            delete_emojivoto
-
-            echo " +++ linkerd benchmark"
-            echo "Installing linkerd"
-            lokoctl component apply experimental-linkerd
-            [ $? -ne 0 ] && {
-                # this sometimes fails with a namespace error, works the 2nd time
-                sleep 5
-                lokoctl component apply experimental-linkerd; }
-
-            grace "kubectl get pods --all-namespaces | grep linkerd | grep -v Running"
-
-            install_emojivoto linkerd
-            run_bench linkerd $rps
-            delete_emojivoto
-
-            echo "Removing linkerd"
-            lokoctl component delete experimental-linkerd --delete-namespace --confirm
-            kubectl delete namespace linkerd --now --timeout=30s
-            grace "kubectl get namespaces | grep linkerd"
-
-            echo " +++ istio benchmark"
-            echo "Installing istio"
-            lokoctl component apply experimental-istio-operator
-            grace "kubectl get pods --all-namespaces | grep istio-operator | grep -v Running"
-            sleep 30    # extra sleep to let istio initialise. Sidecar injection will
-                        #  fail otherwise.
-
-            install_emojivoto istio
-            while true; do
-                check_meshed "emojivoto-" && {
-                    echo "  ++ Emojivoto is fully meshed."
-                    break; }
-                echo " !!! Emojivoto is not fully meshed."
-                echo "     Deleting and re-deploying Istio."
-                delete_istio
-                lokoctl component apply experimental-istio-operator
-                grace "kubectl get pods --all-namespaces | grep istio-operator | grep -v Running"
-                sleep 30
-                echo " !!!  Restarting all Emojivoto pods."
-                restart_emojivoto_pods
-            done
-            run_bench istio $rps
-            delete_emojivoto
-
-            echo "Removing istio"
-            delete_istio
+            run_benchmarks_istio
         done
     done
 }
 # --
 
+function run_benchmarks_bare_metal_repeat(){
+    for rps in 500 1000 1500 2000 2500 3000 3500 4000 4500 5000 5500; do
+        for repeat in 1 2 3 4 5; do
+           run_benchmarks_bare_metal
+        done
+    done
+}
+# --
+
+# function run_benchmarks() {
+    # for rps in 500 1000 1500 2000 2500 3000 3500 4000 4500 5000 5500; do
+    #     for repeat in 1 2 3 4 5; do
+
+            # echo "########## Run #$repeat w/ $rps RPS"
+
+            # echo " +++ bare metal benchmark"
+            # install_emojivoto bare-metal
+            # run_bench bare-metal $rps
+            # delete_emojivoto
+
+            # echo " +++ linkerd benchmark"
+            # echo "Installing linkerd"
+            # lokoctl component apply experimental-linkerd
+            # [ $? -ne 0 ] && {
+            #     # this sometimes fails with a namespace error, works the 2nd time
+            #     sleep 5
+            #     lokoctl component apply experimental-linkerd; }
+
+            # grace "kubectl get pods --all-namespaces | grep linkerd | grep -v Running"
+
+            # install_emojivoto linkerd
+            # run_bench linkerd $rps
+            # delete_emojivoto
+
+            # echo "Removing linkerd"
+            # lokoctl component delete experimental-linkerd --delete-namespace --confirm
+            # kubectl delete namespace linkerd --now --timeout=30s
+            # grace "kubectl get namespaces | grep linkerd"
+
+            # echo " +++ istio benchmark"
+            # echo "Installing istio"
+            # lokoctl component apply experimental-istio-operator
+            # grace "kubectl get pods --all-namespaces | grep istio-operator | grep -v Running"
+            # sleep 30    # extra sleep to let istio initialise. Sidecar injection will
+            #             #  fail otherwise.
+
+            # install_emojivoto istio
+            # while true; do
+            #     check_meshed "emojivoto-" && {
+            #         echo "  ++ Emojivoto is fully meshed."
+            #         break; }
+            #     echo " !!! Emojivoto is not fully meshed."
+            #     echo "     Deleting and re-deploying Istio."
+            #     delete_istio
+            #     lokoctl component apply experimental-istio-operator
+            #     grace "kubectl get pods --all-namespaces | grep istio-operator | grep -v Running"
+            #     sleep 30
+            #     echo " !!!  Restarting all Emojivoto pods."
+            #     restart_emojivoto_pods
+            # done
+            # run_bench istio $rps
+            # delete_emojivoto
+
+            # echo "Removing istio"
+            # delete_istio
+    #     done
+    # done
+# }
+# --
+
 if [ "$(basename $0)" = "run_benchmarks.sh" ] ; then
-    run_benchmarks $@
+    if [ "$1" = "istio" ] ; then
+        run_benchmarks_istio_repeat
+    fi
+    if [ "$1" = "bare-metal" ] ; then
+        run_benchmarks_bare_metal_repeat
+    fi
 fi
