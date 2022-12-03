@@ -1093,7 +1093,7 @@
         "steppedLine": false,
         "targets": [
           {
-            "expr": "max(container_memory_working_set_bytes{container!~\"POD\", namespace=~\"$instance.*\", container=~\"(linkerd|istio)-proxy\",container!=\"\"})  by (container)",
+            "expr": "sum(container_memory_working_set_bytes{container!~\"POD\", namespace=~\"istio-system\", container=~\"istio-proxy\",container!=\"\",pod!~\"istio-ingressgateway-.*\"})  by (container)",
             "legendFormat": "{{container}} Memory",
             "refId": "B"
           }
@@ -1102,7 +1102,7 @@
         "timeFrom": null,
         "timeRegions": [],
         "timeShift": null,
-        "title": "Sidecar Memory usage - applications (max. across all sidecars)",
+        "title": "Ztunnel Memory usage - applications (sum.)",
         "tooltip": {
           "shared": true,
           "sort": 2,
@@ -1191,7 +1191,7 @@
             "refId": "E"
           },
           {
-            "expr": "sum(container_memory_working_set_bytes{container!~\"POD\", namespace=~\"(istio-.*)\", container!~\".*-proxy\",container!=\"\"})",
+            "expr": "sum(container_memory_working_set_bytes{container!~\"POD\", namespace=~\"(istio-.*)\", container=~\"discovery\",container!=\"\"})",
             "legendFormat": "Istio total Memory",
             "refId": "F"
           }
@@ -1392,7 +1392,7 @@
         "steppedLine": false,
         "targets": [
           {
-            "expr": "max(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$instance.*\", container=~\"(linkerd|istio)-proxy\",container!=\"\"}) by (container)",
+            "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\"istio-system\", container=~\"(linkerd|istio)-proxy\",container!=\"\",pod!~\"istio-ingressgateway-.*\"}[$__rate_interval]))",
             "format": "time_series",
             "instant": false,
             "legendFormat": "{{container}} CPU seconds",
@@ -1403,7 +1403,7 @@
         "timeFrom": null,
         "timeRegions": [],
         "timeShift": null,
-        "title": "Sidecar CPU usage  - applications (max. across all sidecars)",
+        "title": "Ztunnel CPU usage  - applications (sum.)",
         "tooltip": {
           "shared": true,
           "sort": 2,
@@ -1509,7 +1509,7 @@
             "refId": "C"
           },
           {
-            "expr": "sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_rate{namespace=~\"istio-.*\", container!~\".*-proxy\",container!=\"\"})",
+            "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\"istio-.*\", container=~\"discovery\",container!=\"\"}[$__rate_interval]))",
             "legendFormat": "Istio total CPU seconds",
             "refId": "D"
           }

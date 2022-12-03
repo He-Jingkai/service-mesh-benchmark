@@ -41,15 +41,16 @@ function check_meshed() {
 
 function install_emojivoto() {
     local mesh="$1"
+    local instance="$2"
 
     echo "Installing emojivoto."
 
-    for num in $(seq 0 1 59); do
+    for num in $(seq 0 1 $instance); do
         { 
             kubectl create namespace emojivoto-$num
 
             [ "$mesh" == "istio" ] && \
-                kubectl label namespace emojivoto-$num istio-injection=enabled
+                kubectl label namespace emojivoto-$num istio.io/dataplane-mode=ambient
 
             helm install emojivoto-$num --namespace emojivoto-$num \
                              ${script_location}/../configs/emojivoto/
@@ -63,8 +64,9 @@ function install_emojivoto() {
 # --
 
 function restart_emojivoto_pods() {
+    local instance="$1"
 
-    for num in $(seq 0 1 59); do
+    for num in $(seq 0 1 $instance); do
         local ns="emojivoto-$num"
         echo "Restarting pods in $ns"
         {  local pods="$(kubectl get -n "$ns" pods | grep -vE '^NAME' | awk '{print $1}')"
@@ -78,9 +80,10 @@ function restart_emojivoto_pods() {
 # --
 
 function delete_emojivoto() {
+    local instance="$1"
     echo "Deleting emojivoto."
 
-    for i in $(seq 0 1 59); do
+    for i in $(seq 0 1 $instance); do
         { helm uninstall emojivoto-$i --namespace emojivoto-$i;
           kubectl delete namespace emojivoto-$i --wait; } &
     done
@@ -109,7 +112,8 @@ function install_benchmark() {
     echo "Running $mesh benchmark"
     kubectl create ns benchmark
     [ "$mesh" == "istio" ] && \
-        kubectl label namespace benchmark istio-injection=enabled
+        kubectl label namespace benchmark istio.io/dataplane-mode=ambient
+        kubectl label namespace monitoring istio.io/dataplane-mode=ambient
     if [ "$mesh" != "bare-metal" ] ; then
         helm install benchmark --namespace benchmark \
             --set wrk2.serviceMesh="$mesh" \
@@ -207,34 +211,40 @@ function delete_istio() {
 # --
 
 function run_benchmarks_istio(){
+    rps=$1
+    instance=$2
     echo " +++ istio benchmark"
-    install_emojivoto istio
+    install_emojivoto istio $instance
     run_bench istio $rps
-    delete_emojivoto
+    delete_emojivoto $instance
 }
 # --
 
 function run_benchmarks_bare_metal(){
+    rps=$1
+    instance=$2
     echo " +++ bare metal benchmark"
-    install_emojivoto bare-metal
+    install_emojivoto bare-metal $instance
     run_bench bare-metal $rps
-    delete_emojivoto
+    delete_emojivoto $instance
 }
 # --
 
 function run_benchmarks_istio_repeat(){
+    instance=$1
     for rps in 500 1000 1500 2000 2500 3000 3500 4000 4500 5000 5500; do
         for repeat in 1 2 3 4 5; do
-            run_benchmarks_istio
+            run_benchmarks_istio $rps $instance
         done
     done
 }
 # --
 
 function run_benchmarks_bare_metal_repeat(){
+    instance=$1
     for rps in 500 1000 1500 2000 2500 3000 3500 4000 4500 5000 5500; do
         for repeat in 1 2 3 4 5; do
-           run_benchmarks_bare_metal
+           run_benchmarks_bare_metal $rps $instance
         done
     done
 }
@@ -302,10 +312,11 @@ function run_benchmarks_bare_metal_repeat(){
 # --
 
 if [ "$(basename $0)" = "run_benchmarks.sh" ] ; then
-    if [ "$1" = "istio" ] ; then
-        run_benchmarks_istio_repeat
-    fi
-    if [ "$1" = "bare-metal" ] ; then
-        run_benchmarks_bare_metal_repeat
-    fi
+    # if [ "$1" = "istio" ] ; then
+    #     run_benchmarks_istio_repeat
+    # fi
+    # if [ "$1" = "bare-metal" ] ; then
+    #     run_benchmarks_bare_metal_repeat
+    # fi
+    run_benchmarks_istio 50 3
 fi
