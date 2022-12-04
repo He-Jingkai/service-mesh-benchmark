@@ -34,8 +34,8 @@ sudo apt-get install helm
 # with proxy
 curl -x 127.0.0.1:7890 https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
-sudo apt-get update -o Acquire::http::proxy="http://127.0.0.1:7890/
-sudo apt-get install helm -o Acquire::http::proxy="http://127.0.0.1:7890/
+sudo apt-get update -o Acquire::http::proxy="http://127.0.0.1:7890/"
+sudo apt-get install helm -o Acquire::http::proxy="http://127.0.0.1:7890/"
 ```
 
 1. install kube-prometheus and pushgateway
@@ -58,7 +58,7 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000 &
 # upload configration
 cd dashboards
 ./upload_dashboard.sh "[API KEY]" grafana-wrk2-cockpit.json localhost:3000
-# add data source: Data Sources/Prometheus http://prometheus-k8s.monitoring:9090
+# add data source: Data Sources/Prometheus Name:Prometheus URL:http://prometheus-k8s.monitoring:9090
 ```
 
 3. start the benchmark

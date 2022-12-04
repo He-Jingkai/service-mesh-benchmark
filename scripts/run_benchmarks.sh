@@ -167,6 +167,7 @@ function run_bench() {
     echo "Cleaning up."
     helm uninstall benchmark --namespace benchmark
     kubectl delete ns benchmark --wait
+    kubectl label namespace monitoring istio.io/dataplane-mode-
     helm uninstall --namespace metrics-merger metrics-merger
     kubectl delete ns metrics-merger --wait
 }

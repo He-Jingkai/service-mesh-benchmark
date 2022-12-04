@@ -18,6 +18,8 @@ spec:
         visualize: "true"
         run: pushgateway
     spec:
+      nodeSelector:
+        offMeshNodeType: cpu
       containers:
       - name: pushgateway
         image: prom/pushgateway
