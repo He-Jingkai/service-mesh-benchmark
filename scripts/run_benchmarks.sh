@@ -54,7 +54,8 @@ function install_emojivoto() {
 
             helm install emojivoto-$num --namespace emojivoto-$num \
                              ${script_location}/../configs/emojivoto/
-         } &
+            sleep 1s
+         }
     done
 
     wait
@@ -113,7 +114,6 @@ function install_benchmark() {
     kubectl create ns benchmark
     [ "$mesh" == "istio" ] && \
         kubectl label namespace benchmark istio.io/dataplane-mode=ambient
-        kubectl label namespace monitoring istio.io/dataplane-mode=ambient
     if [ "$mesh" != "bare-metal" ] ; then
         helm install benchmark --namespace benchmark \
             --set wrk2.serviceMesh="$mesh" \
@@ -152,24 +152,23 @@ function run_bench() {
         sleep 10
     done
 
-    echo "Benchmark concluded. Updating summary metrics."
-    helm install --create-namespace --namespace metrics-merger \
-        metrics-merger ${script_location}/../configs/metrics-merger/
-    sleep 5
-    while kubectl get jobs -n metrics-merger \
-            | grep wrk2-metrics-merger \
-            | grep  -v "1/1"; do
-        sleep 1
-    done
-
-    kubectl logs -n metrics-merger jobs/wrk2-metrics-merger
+#    echo "Benchmark concluded. Updating summary metrics."
+#    helm install --create-namespace --namespace metrics-merger \
+#        metrics-merger ${script_location}/../configs/metrics-merger/
+#    sleep 5
+#    while kubectl get jobs -n metrics-merger \
+#            | grep wrk2-metrics-merger \
+#            | grep  -v "1/1"; do
+#        sleep 1
+#    done
+#
+#    kubectl logs -n metrics-merger jobs/wrk2-metrics-merger
 
     echo "Cleaning up."
-    helm uninstall benchmark --namespace benchmark
-    kubectl delete ns benchmark --wait
-    kubectl label namespace monitoring istio.io/dataplane-mode-
-    helm uninstall --namespace metrics-merger metrics-merger
-    kubectl delete ns metrics-merger --wait
+#    helm uninstall benchmark --namespace benchmark
+#    kubectl delete ns benchmark --wait
+#    helm uninstall --namespace metrics-merger metrics-merger
+#    kubectl delete ns metrics-merger --wait
 }
 # --
 

@@ -20,35 +20,35 @@ spec:
         app: emoji-svc
     spec:
       nodeSelector:
-        # role: workload
+        role: workload
         offMeshNodeType: cpu
       securityContext:
         runAsNonRoot: true
         runAsUser: 65534
         runAsGroup: 65534
       containers:
-      - env:
-        - name: GRPC_PORT
-          value: "8080"
-        - name: PROM_PORT
-          value: "8801"
-        image: buoyantio/emojivoto-emoji-svc:v10
-        name: emoji-svc
-        securityContext:
-          readOnlyRootFilesystem: false
-          capabilities:
-            add:
-            - NET_ADMIN
-            - NET_RAW
-            - NET_BIND_SERVICE
-        ports:
-        - containerPort: 8080
-          name: grpc
-        - containerPort: 8801
-          name: prom
-        resources:
-          requests:
-            cpu: 100m
+        - env:
+            - name: GRPC_PORT
+              value: "8080"
+            - name: PROM_PORT
+              value: "8801"
+          image: buoyantio/emojivoto-emoji-svc:v10
+          name: emoji-svc
+          securityContext:
+            readOnlyRootFilesystem: false
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+                - NET_BIND_SERVICE
+          ports:
+            - containerPort: 8080
+              name: grpc
+            - containerPort: 8801
+              name: prom
+          resources:
+            requests:
+              cpu: 100m
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -72,35 +72,35 @@ spec:
         app: voting-svc
     spec:
       nodeSelector:
-        # role: workload
+        role: workload
         offMeshNodeType: cpu
       securityContext:
         runAsNonRoot: true
         runAsUser: 65534
         runAsGroup: 65534
       containers:
-      - env:
-        - name: GRPC_PORT
-          value: "8080"
-        - name: PROM_PORT
-          value: "8801"
-        image: buoyantio/emojivoto-voting-svc:v10
-        name: voting-svc
-        securityContext:
-          readOnlyRootFilesystem: false
-          capabilities:
-            add:
-            - NET_ADMIN
-            - NET_RAW
-            - NET_BIND_SERVICE
-        ports:
-        - containerPort: 8080
-          name: grpc
-        - containerPort: 8801
-          name: prom
-        resources:
-          requests:
-            cpu: 100m
+        - env:
+            - name: GRPC_PORT
+              value: "8080"
+            - name: PROM_PORT
+              value: "8801"
+          image: buoyantio/emojivoto-voting-svc:v10
+          name: voting-svc
+          securityContext:
+            readOnlyRootFilesystem: false
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+                - NET_BIND_SERVICE
+          ports:
+            - containerPort: 8080
+              name: grpc
+            - containerPort: 8801
+              name: prom
+          resources:
+            requests:
+              cpu: 100m
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -124,34 +124,34 @@ spec:
         app: web-svc
     spec:
       nodeSelector:
-        # role: workload
+        role: workload
         offMeshNodeType: cpu
       securityContext:
         runAsNonRoot: true
         runAsUser: 65534
         runAsGroup: 65534
       containers:
-      - env:
-        - name: WEB_PORT
-          value: "8080"
-        - name: EMOJISVC_HOST
-          value: emoji-svc.{{.Release.Namespace}}:8080
-        - name: VOTINGSVC_HOST
-          value: voting-svc.{{.Release.Namespace}}:8080
-        - name: INDEX_BUNDLE
-          value: dist/index_bundle.js
-        image: buoyantio/emojivoto-web:v10
-        securityContext:
-          readOnlyRootFilesystem: false
-          capabilities:
-            add:
-            - NET_ADMIN
-            - NET_RAW
-            - NET_BIND_SERVICE
-        name: web-svc
-        ports:
-        - containerPort: 8080
-          name: http
-        resources:
-          requests:
-            cpu: 100m
+        - env:
+            - name: WEB_PORT
+              value: "8080"
+            - name: EMOJISVC_HOST
+              value: emoji-svc.{{.Release.Namespace}}:8080
+            - name: VOTINGSVC_HOST
+              value: voting-svc.{{.Release.Namespace}}:8080
+            - name: INDEX_BUNDLE
+              value: dist/index_bundle.js
+          image: buoyantio/emojivoto-web:v10
+          securityContext:
+            readOnlyRootFilesystem: false
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+                - NET_BIND_SERVICE
+          name: web-svc
+          ports:
+            - containerPort: 8080
+              name: http
+          resources:
+            requests:
+              cpu: 100m
