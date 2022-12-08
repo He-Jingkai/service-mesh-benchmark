@@ -170,6 +170,6 @@ function run_benchmarks_bare_metal_repeat(){
 }
 # --
 
-if [ "$(basename $0)" = "run_benchmarks.sh" ] ; then
+if [ "$(basename $0)" = "benchmark-bookinfo.sh" ] ; then
     run_benchmarks_istio 50 3
 fi
