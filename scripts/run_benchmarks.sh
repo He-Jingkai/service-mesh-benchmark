@@ -10,6 +10,7 @@ function grace() {
         eval $1
         if [ $? -eq 0 ]; then
             sleep 1
+            [ -n "$2" ] && grace="$2"
             grace=10
             continue
         fi
@@ -47,7 +48,7 @@ function install_emojivoto() {
 
     wait
 
-    grace "kubectl get pods --all-namespaces | grep emojivoto | grep -v Running" 10
+    grace "kubectl get pods --all-namespaces | grep emojivoto | grep -v Running" 60
 }
 # --
 
@@ -78,7 +79,7 @@ function install_benchmark() {
     local rps="$2"
 
     local duration=600
-    local init_delay=10
+    local init_delay=60
 
     local app_count=$(kubectl get namespaces | grep emojivoto | wc -l)
 
@@ -112,7 +113,7 @@ function run_bench() {
     local rps="$2"
 
     install_benchmark "$mesh" "$rps"
-    grace "kubectl get pods -n benchmark | grep wrk2-prometheus | grep -v Running" 10
+    grace "kubectl get pods -n benchmark | grep wrk2-prometheus | grep -v Running" 60
 
     echo "Benchmark started."
 
@@ -191,5 +192,5 @@ if [ "$(basename $0)" = "run_benchmarks.sh" ] ; then
     # if [ "$1" = "bare-metal" ] ; then
     #     run_benchmarks_bare_metal_repeat
     # fi
-    run_benchmarks_istio 50 3
+    run_benchmarks_istio 20 49
 fi
