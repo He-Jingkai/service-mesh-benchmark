@@ -20,50 +20,50 @@ function grace() {
             grace=$(($grace-1))
             continue
         fi
-        
+
         break
     done
 }
 # --
 
-function install_emojivoto() {
+function install_bookinfo() {
     local mesh="$1"
     local instance="$2"
 
-    echo "Installing emojivoto."
+    echo "Installing bookinfo."
 
     for num in $(seq 0 1 $instance); do
-        { 
-            kubectl create namespace emojivoto-$num
+        {
+            kubectl create namespace bookinfo-$num
 
             [ "$mesh" == "istio" ] && \
-                kubectl label namespace emojivoto-$num istio.io/dataplane-mode=ambient
+                kubectl label namespace bookinfo-$num istio.io/dataplane-mode=ambient
 
-            helm install emojivoto-$num --namespace emojivoto-$num \
-                             ${script_location}/../configs/emojivoto/
+            helm install bookinfo-$num --namespace bookinfo-$num \
+                             ${script_location}/../configs/bookinfo/
             sleep 1s
          }
     done
 
     wait
 
-    grace "kubectl get pods --all-namespaces | grep emojivoto | grep -v Running" 10
+    grace "kubectl get pods --all-namespaces | grep bookinfo | grep -v Running" 10
 }
 # --
 
 
-function delete_emojivoto() {
+function delete_bookinfo() {
     local instance="$1"
-    echo "Deleting emojivoto."
+    echo "Deleting bookinfo."
 
     for i in $(seq 0 1 $instance); do
-        { helm uninstall emojivoto-$i --namespace emojivoto-$i;
-          kubectl delete namespace emojivoto-$i --wait; } &
+        { helm uninstall bookinfo-$i --namespace bookinfo-$i;
+          kubectl delete namespace bookinfo-$i --wait; } &
     done
 
     wait
 
-    grace "kubectl get namespaces | grep emojivoto"
+    grace "kubectl get namespaces | grep bookinfo"
 }
 # --
 
@@ -80,7 +80,7 @@ function install_benchmark() {
     local duration=600
     local init_delay=10
 
-    local app_count=$(kubectl get namespaces | grep emojivoto | wc -l)
+    local app_count=$(kubectl get namespaces | grep bookinfo | wc -l)
 
     echo "Running $mesh benchmark"
     kubectl create ns benchmark
@@ -90,6 +90,7 @@ function install_benchmark() {
         helm install benchmark --namespace benchmark \
             --set wrk2.serviceMesh="$mesh" \
             --set wrk2.app.count="$app_count" \
+            --set wrk2.app.name="bookinfo" \
             --set wrk2.RPS="$rps" \
             --set wrk2.duration=$duration \
             --set wrk2.connections=128 \
@@ -98,6 +99,7 @@ function install_benchmark() {
     else
         helm install benchmark --namespace benchmark \
             --set wrk2.app.count="$app_count" \
+            --set wrk2.app.name="bookinfo" \
             --set wrk2.RPS="$rps" \
             --set wrk2.duration=$duration \
             --set wrk2.initDelay=$init_delay \
@@ -124,23 +126,7 @@ function run_bench() {
         sleep 10
     done
 
-#    echo "Benchmark concluded. Updating summary metrics."
-#    helm install --create-namespace --namespace metrics-merger \
-#        metrics-merger ${script_location}/../configs/metrics-merger/
-#    sleep 5
-#    while kubectl get jobs -n metrics-merger \
-#            | grep wrk2-metrics-merger \
-#            | grep  -v "1/1"; do
-#        sleep 1
-#    done
-#
-#    kubectl logs -n metrics-merger jobs/wrk2-metrics-merger
-
     echo "Cleaning up."
-#    helm uninstall benchmark --namespace benchmark
-#    kubectl delete ns benchmark --wait
-#    helm uninstall --namespace metrics-merger metrics-merger
-#    kubectl delete ns metrics-merger --wait
 }
 # --
 
@@ -148,9 +134,9 @@ function run_benchmarks_istio(){
     rps=$1
     instance=$2
     echo " +++ istio benchmark"
-    install_emojivoto istio $instance
+    install_bookinfo istio $instance
     run_bench istio $rps
-    delete_emojivoto $instance
+    delete_bookinfo $instance
 }
 # --
 
@@ -158,9 +144,9 @@ function run_benchmarks_bare_metal(){
     rps=$1
     instance=$2
     echo " +++ bare metal benchmark"
-    install_emojivoto bare-metal $instance
+    install_bookinfo bare-metal $instance
     run_bench bare-metal $rps
-    delete_emojivoto $instance
+    delete_bookinfo $instance
 }
 # --
 
@@ -185,11 +171,5 @@ function run_benchmarks_bare_metal_repeat(){
 # --
 
 if [ "$(basename $0)" = "run_benchmarks.sh" ] ; then
-    # if [ "$1" = "istio" ] ; then
-    #     run_benchmarks_istio_repeat
-    # fi
-    # if [ "$1" = "bare-metal" ] ; then
-    #     run_benchmarks_bare_metal_repeat
-    # fi
     run_benchmarks_istio 50 3
 fi
