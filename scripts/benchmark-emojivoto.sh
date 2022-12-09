@@ -21,7 +21,7 @@ function grace() {
             grace=$(($grace-1))
             continue
         fi
-        
+
         break
     done
 }
@@ -34,7 +34,7 @@ function install_emojivoto() {
     echo "Installing emojivoto."
 
     for num in $(seq 0 1 $instance); do
-        { 
+        {
             kubectl create namespace emojivoto-$num
 
             [ "$mesh" == "istio" ] && \
@@ -185,7 +185,7 @@ function run_benchmarks_bare_metal_repeat(){
 }
 # --
 
-if [ "$(basename $0)" = "run_benchmarks.sh" ] ; then
+if [ "$(basename $0)" = "benchmark-emojivoto.sh" ] ; then
     # if [ "$1" = "istio" ] ; then
     #     run_benchmarks_istio_repeat
     # fi
