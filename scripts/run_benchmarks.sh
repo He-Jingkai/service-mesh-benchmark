@@ -10,8 +10,8 @@ function grace() {
         eval $1
         if [ $? -eq 0 ]; then
             sleep 1
-            [ -n "$2" ] && grace="$2"
             grace=10
+            [ -n "$2" ] && grace="$2"
             continue
         fi
 
