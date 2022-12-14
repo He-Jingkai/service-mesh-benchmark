@@ -135,7 +135,7 @@ function run_benchmarks_istio(){
     rps=$1
     instance=$2
     echo " +++ istio benchmark"
-    install_bookinfo istio $instance
+#    install_bookinfo istio $instance
     run_bench istio $rps
     delete_bookinfo $instance
 }
