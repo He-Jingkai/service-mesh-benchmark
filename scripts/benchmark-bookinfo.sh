@@ -98,5 +98,6 @@ function run_benchmarks_istio(){
 # --
 
 if [ "$(basename $0)" = "benchmark-bookinfo.sh" ] ; then
+    kubectl delete ns benchmark
     run_benchmarks_istio 20
 fi
