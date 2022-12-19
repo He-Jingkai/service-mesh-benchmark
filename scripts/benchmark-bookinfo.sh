@@ -27,47 +27,6 @@ function grace() {
 }
 # --
 
-function install_bookinfo() {
-    local mesh="$1"
-    local instance="$2"
-
-    echo "Installing bookinfo."
-
-    for num in $(seq 0 1 $instance); do
-        {
-            kubectl create namespace bookinfo-$num
-
-            [ "$mesh" == "istio" ] && \
-                kubectl label namespace bookinfo-$num istio.io/dataplane-mode=ambient
-
-            helm install bookinfo-$num --namespace bookinfo-$num \
-                             ${script_location}/../configs/bookinfo/
-            sleep 1s
-         }
-    done
-
-    wait
-
-    grace "kubectl get pods --all-namespaces | grep bookinfo | grep -v Running" 60
-}
-# --
-
-
-function delete_bookinfo() {
-    local instance="$1"
-    echo "Deleting bookinfo."
-
-    for i in $(seq 0 1 $instance); do
-        { helm uninstall bookinfo-$i --namespace bookinfo-$i;
-          kubectl delete namespace bookinfo-$i --wait; } &
-    done
-
-    wait
-
-    grace "kubectl get namespaces | grep bookinfo"
-}
-# --
-
 function run() {
     echo "   Running '$@'"
     $@
@@ -133,44 +92,11 @@ function run_bench() {
 
 function run_benchmarks_istio(){
     rps=$1
-    instance=$2
     echo " +++ istio benchmark"
-#    install_bookinfo istio $instance
     run_bench istio $rps
-    delete_bookinfo $instance
-}
-# --
-
-function run_benchmarks_bare_metal(){
-    rps=$1
-    instance=$2
-    echo " +++ bare metal benchmark"
-    install_bookinfo bare-metal $instance
-    run_bench bare-metal $rps
-    delete_bookinfo $instance
-}
-# --
-
-function run_benchmarks_istio_repeat(){
-    instance=$1
-    for rps in 500 1000 1500 2000 2500 3000 3500 4000 4500 5000 5500; do
-        for repeat in 1 2 3 4 5; do
-            run_benchmarks_istio $rps $instance
-        done
-    done
-}
-# --
-
-function run_benchmarks_bare_metal_repeat(){
-    instance=$1
-    for rps in 500 1000 1500 2000 2500 3000 3500 4000 4500 5000 5500; do
-        for repeat in 1 2 3 4 5; do
-           run_benchmarks_bare_metal $rps $instance
-        done
-    done
 }
 # --
 
 if [ "$(basename $0)" = "benchmark-bookinfo.sh" ] ; then
-    run_benchmarks_istio 20 49
+    run_benchmarks_istio 20
 fi

@@ -27,46 +27,6 @@ function grace() {
 }
 # --
 
-function install_emojivoto() {
-    local mesh="$1"
-    local instance="$2"
-
-    echo "Installing emojivoto."
-
-    for num in $(seq 0 1 $instance); do
-        {
-            kubectl create namespace emojivoto-$num
-
-            [ "$mesh" == "istio" ] && \
-                kubectl label namespace emojivoto-$num istio.io/dataplane-mode=ambient
-
-            helm install emojivoto-$num --namespace emojivoto-$num \
-                             ${script_location}/../configs/emojivoto/
-            sleep 1s
-         }
-    done
-
-    wait
-
-    grace "kubectl get pods --all-namespaces | grep emojivoto | grep -v Running" 60
-}
-# --
-
-
-function delete_emojivoto() {
-    local instance="$1"
-    echo "Deleting emojivoto."
-
-    for i in $(seq 0 1 $instance); do
-        { helm uninstall emojivoto-$i --namespace emojivoto-$i;
-          kubectl delete namespace emojivoto-$i --wait; } &
-    done
-
-    wait
-
-    grace "kubectl get namespaces | grep emojivoto"
-}
-# --
 
 function run() {
     echo "   Running '$@'"
@@ -147,50 +107,11 @@ function run_bench() {
 
 function run_benchmarks_istio(){
     rps=$1
-    instance=$2
     echo " +++ istio benchmark"
-#    install_emojivoto istio $instance
     run_bench istio $rps
-    delete_emojivoto $instance
-}
-# --
-
-function run_benchmarks_bare_metal(){
-    rps=$1
-    instance=$2
-    echo " +++ bare metal benchmark"
-    install_emojivoto bare-metal $instance
-    run_bench bare-metal $rps
-    delete_emojivoto $instance
-}
-# --
-
-function run_benchmarks_istio_repeat(){
-    instance=$1
-    for rps in 500 1000 1500 2000 2500 3000 3500 4000 4500 5000 5500; do
-        for repeat in 1 2 3 4 5; do
-            run_benchmarks_istio $rps $instance
-        done
-    done
-}
-# --
-
-function run_benchmarks_bare_metal_repeat(){
-    instance=$1
-    for rps in 500 1000 1500 2000 2500 3000 3500 4000 4500 5000 5500; do
-        for repeat in 1 2 3 4 5; do
-           run_benchmarks_bare_metal $rps $instance
-        done
-    done
 }
 # --
 
 if [ "$(basename $0)" = "benchmark-emojivoto.sh" ] ; then
-    # if [ "$1" = "istio" ] ; then
-    #     run_benchmarks_istio_repeat
-    # fi
-    # if [ "$1" = "bare-metal" ] ; then
-    #     run_benchmarks_bare_metal_repeat
-    # fi
-    run_benchmarks_istio 20 49
+    run_benchmarks_istio 20
 fi

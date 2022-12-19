@@ -1,4 +1,3 @@
-#!/bin/bash
 
 function grace() {
     grace=10
@@ -23,17 +22,16 @@ function grace() {
         break
     done
 }
+# --
 
 instance="$1"
-echo "Installing bookinfo."
-for num in $(seq 0 1 $instance); do
-{
-  kubectl create namespace bookinfo-$num
-  kubectl label namespace bookinfo-$num istio.io/dataplane-mode=ambient
-  helm install bookinfo-$num --namespace bookinfo-$num $(dirname "${BASH_SOURCE[0]}")/../configs/bookinfo/
-  sleep 1s
-}
-done
-wait
-grace "kubectl get pods --all-namespaces | grep bookinfo | grep -v Running" 60
+echo "Deleting bookinfo."
 
+for i in $(seq 0 1 $instance); do
+  { helm uninstall bookinfo-$i --namespace bookinfo-$i;
+    kubectl delete namespace bookinfo-$i --wait; } &
+done
+
+wait
+
+grace "kubectl get namespaces | grep bookinfo"
