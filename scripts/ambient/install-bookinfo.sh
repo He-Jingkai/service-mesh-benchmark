@@ -30,7 +30,7 @@ for num in $(seq 0 1 $instance); do
 {
   kubectl create namespace bookinfo-$num
   kubectl label namespace bookinfo-$num istio.io/dataplane-mode=ambient
-  helm install bookinfo-$num --namespace bookinfo-$num $(dirname "${BASH_SOURCE[0]}")/../configs/bookinfo/
+  helm install bookinfo-$num --namespace bookinfo-$num $(dirname "${BASH_SOURCE[0]}")/../../configs/bookinfo/
   sleep 1s
 }
 done

@@ -55,7 +55,7 @@ function install_benchmark() {
             --set wrk2.duration=$duration \
             --set wrk2.connections=128 \
             --set wrk2.initDelay=$init_delay \
-            ${script_location}/../configs/benchmark/
+            ${script_location}/../../configs/benchmark/
     else
         helm install benchmark --namespace benchmark \
             --set wrk2.app.count="$app_count" \
@@ -63,7 +63,7 @@ function install_benchmark() {
             --set wrk2.duration=$duration \
             --set wrk2.initDelay=$init_delay \
             --set wrk2.connections=128 \
-            ${script_location}/../configs/benchmark/
+            ${script_location}/../../configs/benchmark/
     fi
 }
 # --

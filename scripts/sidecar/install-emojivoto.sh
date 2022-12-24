@@ -31,7 +31,7 @@ for num in $(seq 0 1 $instance); do
 {
   kubectl create namespace emojivoto-$num
   kubectl label namespace emojivoto-$num istio-injection=enabled
-  helm install emojivoto-$num --namespace emojivoto-$num $(dirname "${BASH_SOURCE[0]}")/../configs/emojivoto/
+  helm install emojivoto-$num --namespace emojivoto-$num $(dirname "${BASH_SOURCE[0]}")/../../configs/emojivoto/
   sleep 1s
 }
 done

@@ -83,29 +83,29 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: reviews-v1
+  name: reviews-v2
   namespace: {{.Release.Namespace}}
   labels:
     app: reviews
-    version: v1
+    version: v2
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: reviews
-      version: v1
+      version: v2
   template:
     metadata:
       labels:
         app: reviews
-        version: v1
+        version: v2
     spec:
       nodeSelector:
         role: workload
         offMeshNodeType: cpu
       containers:
       - name: reviews
-        image: docker.io/istio/examples-bookinfo-reviews-v1:1.15.1
+        image: docker.io/istio/examples-bookinfo-reviews-v2:1.15.1
         imagePullPolicy: IfNotPresent
         env:
         - name: LOG_DIR
