@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: invoker
+  namespace: {{.Release.Namespace}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: invoker
+  template:
+    metadata:
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "invoker"
+        dapr.io/app-port: "80"
+        dapr.io/enable-api-logging: "true"
+      labels:
+        app: invoker
+    spec:
+      nodeSelector:
+        offMeshNodeType: cpu
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+      containers:
+          image: registry.cn-hangzhou.aliyuncs.com/jkhe/invoker:{{ .Values.image.tag }}
+          name: invoker
+          securityContext:
+            readOnlyRootFilesystem: false
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+                - NET_BIND_SERVICE
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 100m
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server
+  namespace: {{.Release.Namespace}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: server
+  template:
+    metadata:
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "server"
+        dapr.io/app-port: "80"
+        dapr.io/enable-api-logging: "true"
+      labels:
+        app: server
+    spec:
+      nodeSelector:
+        offMeshNodeType: cpu
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+      containers:
+          image: registry.cn-hangzhou.aliyuncs.com/jkhe/server:{{ .Values.image.tag }}
+          name: server
+          securityContext:
+            readOnlyRootFilesystem: false
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+                - NET_BIND_SERVICE
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 100m

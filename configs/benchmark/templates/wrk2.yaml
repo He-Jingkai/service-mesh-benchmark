@@ -57,4 +57,6 @@ spec:
 {{- template "emojivotoURLs" . }}
 {{- else if eq .Values.wrk2.app.name "bookinfo" }}
 {{- template "bookinfoURLs" . }}
+{{- else if eq .Values.wrk2.app.name "service-invocation" }}
+{{- template "serviceInvocationURLs" . }}
 {{- end }}
