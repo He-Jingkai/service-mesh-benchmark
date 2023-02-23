@@ -59,4 +59,6 @@ spec:
 {{- template "bookinfoURLs" . }}
 {{- else if eq .Values.wrk2.app.name "service-invocation" }}
 {{- template "serviceInvocationURLs" . }}
+{{- else if eq .Values.wrk2.app.name "dapr-kv" }}
+{{- template "daprKVURLs" . }}
 {{- end }}

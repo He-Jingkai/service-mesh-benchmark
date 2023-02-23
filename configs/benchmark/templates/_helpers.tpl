@@ -75,3 +75,29 @@
         - "http://invoker.invoker-{{$i}}/test20"
 {{- end -}}
 {{ end }}
+
+{{- define "daprKVURLs" }}
+{{- $count := .Values.wrk2.app.count | int }}
+{{- range $i, $e := until $count }}
+        - "http://dapr-kv.dapr-kv-{{$i}}/read/test"
+        - "http://dapr-kv.dapr-kv-{{$i}}/read/test"
+        - "http://dapr-kv.dapr-kv-{{$i}}/read/test"
+        - "http://dapr-kv.dapr-kv-{{$i}}/read/test"
+        - "http://dapr-kv.dapr-kv-{{$i}}/read/test"
+        - "http://dapr-kv.dapr-kv-{{$i}}/read/test"
+        - "http://dapr-kv.dapr-kv-{{$i}}/read/test"
+        - "http://dapr-kv.dapr-kv-{{$i}}/read/test"
+        - "http://dapr-kv.dapr-kv-{{$i}}/read/test"
+        - "http://dapr-kv.dapr-kv-{{$i}}/read/test"
+        - "http://dapr-kv.dapr-kv-{{$i}}/read/test"
+        - "http://dapr-kv.dapr-kv-{{$i}}/read/test"
+        - "http://dapr-kv.dapr-kv-{{$i}}/read/test"
+        - "http://dapr-kv.dapr-kv-{{$i}}/read/test"
+        - "http://dapr-kv.dapr-kv-{{$i}}/read/test"
+        - "http://dapr-kv.dapr-kv-{{$i}}/read/test"
+        - "http://dapr-kv.dapr-kv-{{$i}}/read/test"
+        - "http://dapr-kv.dapr-kv-{{$i}}/read/test"
+        - "http://dapr-kv.dapr-kv-{{$i}}/read/test"
+        - "http://dapr-kv.dapr-kv-{{$i}}/read/test"
+{{- end -}}
+{{ end }}

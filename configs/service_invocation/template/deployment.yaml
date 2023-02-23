@@ -25,7 +25,7 @@ spec:
         runAsUser: 65534
         runAsGroup: 65534
       containers:
-          image: registry.cn-hangzhou.aliyuncs.com/jkhe/invoker:{{ .Values.image.tag }}
+        - image: registry.cn-hangzhou.aliyuncs.com/jkhe/invoker:{{ .Values.image.tag }}
           name: invoker
           securityContext:
             readOnlyRootFilesystem: false
@@ -67,7 +67,7 @@ spec:
         runAsUser: 65534
         runAsGroup: 65534
       containers:
-          image: registry.cn-hangzhou.aliyuncs.com/jkhe/server:{{ .Values.image.tag }}
+        - image: registry.cn-hangzhou.aliyuncs.com/jkhe/server:{{ .Values.image.tag }}
           name: server
           securityContext:
             readOnlyRootFilesystem: false

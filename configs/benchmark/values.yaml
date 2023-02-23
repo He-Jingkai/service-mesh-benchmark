@@ -6,6 +6,6 @@ wrk2:
   initDelay: 0
   serviceMesh: ""
   app:
-    name: emojivoto
+    name: dapr-kv
     count: "10"
   appImage: hejingkai/wrk2-prometheus
